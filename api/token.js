@@ -2,6 +2,12 @@ import "dotenv/config";
 
 const apiKey = process.env.OPENAI_API_KEY;
 
+// Startup logging for environment variables
+console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'Set' : 'Missing');
+console.log('GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'Set' : 'Missing');
+console.log('VITE_GROQ_API_KEY:', process.env.VITE_GROQ_API_KEY ? 'Set' : 'Missing');
+console.log('VERCEL_ENV:', process.env.VERCEL_ENV);
+
 export default async function handler(req, res) {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,6 +21,13 @@ export default async function handler(req, res) {
 
   // Only handle GET requests to /token
   if (req.method === 'GET') {
+    // Validate API key is configured
+    if (!apiKey) {
+      console.error('OPENAI_API_KEY is not configured');
+      res.status(500).json({ error: 'API key not configured' });
+      return;
+    }
+
     try {
       const response = await fetch(
         "https://api.openai.com/v1/realtime/sessions",
