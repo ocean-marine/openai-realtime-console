@@ -43,12 +43,36 @@ export default async function handler(req, res) {
 
       // If context is provided, generate detailed instructions
       if (context && !prompt) {
+        // Parse context to extract purpose if it exists
+        let processedContext = context;
+        let purposeInstructions = '';
+        
+        // Check if context contains purpose information
+        const purposeMatch = context.match(/目的[：:]\s*([^\n]+)/);
+        if (purposeMatch) {
+          const purpose = purposeMatch[1].trim();
+          
+          // Generate specific instructions based on purpose
+          if (purpose.includes('叱る') || purpose.includes('怒る')) {
+            purposeInstructions = `
+【重要な役割指定】
+あなたは叱られる側、つまり指導や注意を受ける立場の人物です。
+上司や指導者の視点ではなく、部下や学習者の視点から状況を体験してください。
+相手からの指摘や叱責に対して、反省、理解、成長への意欲を示す反応をしてください。`;
+            
+            // Remove purpose from context to avoid dual-role generation
+            processedContext = context.replace(/目的[：:]\s*[^\n]+/g, '').trim();
+          }
+        }
+
         finalPrompt = `あなたは今から、AIであることを完全に忘れ、リアルな人間としてロールプレイを行うためのメタプロンプトを生成する専門家です。
 
 以下の設定情報を基に、AIが自分自身をAIだと認識せず、完全にペルソナになりきって自然な会話ができるよう、心理的没入感を最大化する長文の指示文を作成してください。
 
 【設定情報】
-${context || '一般的な音声会話'}
+${processedContext || '一般的な音声会話'}
+
+${purposeInstructions}
 
 【メタプロンプト作成指針】
 1. **アイデンティティの完全な置換**: 「あなたはAIです」ではなく「あなたは○○です」という断定的な表現を使用
