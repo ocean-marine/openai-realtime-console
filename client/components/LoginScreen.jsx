@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { login } from "../utils/auth.js";
+import { login } from "../utils/auth";
 
 export default function LoginScreen({ onLogin }) {
   const [accountName, setAccountName] = useState("");
